@@ -17,6 +17,7 @@ double Pi_gaussian_UN(double x, double sig){
 double Pi_gaussian(double x, double sig){
     return ( 1./sqrt(2*PI*sig*sig) )*Pi_gaussian_UN(x, sig);
 }
+/////////////////////////////////////////////////////
 
 double sample_semicirc(double a){
     // rejection method
@@ -35,68 +36,6 @@ double sample_gaussian(double sigma){
     return 0.;
 }
 
-random_walker(long start, long tmax){
-    long X[tmax+1];
-    double choose;
-
-    X[0] = start;
-    for(i=0, i<tmax, i++){
-        choose=rand1();
-        if(choose < 0.5){
-            X[i+1] = x[i]+1
-        }else
-            X[i+1] = x[i]-1
-        }
-    }
-
-}
-
-#define NWALKERS
-#define TMAX
-multiple_random_walkers(){}
-    long X[NWALKERS,TMAX+1];
-    double choose;
-
-    for(i=0; i<NWALKERS; i++){
-        X[i,0] = start;
-        for(t=1, t<tmax+1, i++){
-            choose=rand1();
-            if(choose < 0.5){
-                X[i,t] = x[i,t-1]+1
-            }else
-                X[i,t] = x[i,t-1]-1
-        }
-    }
-
-    long Pi_UN[TMAX,TMAX+1];
-
-    // Order TMAX*TMAX*NWALKERS
-//    for(x=0, x<TMAX, x++){
-//    for(t=0, t<TMAX+1, t++){
-//        Pi_UN[x,t]=0;
-//        for(i=0; i<NWALKERS; i++){
-//            if(X[i,t] == x) Pi_UN[x,t]++;
-//        }
-//    }
-//    }
-
-    // Order TMAX*NWALKERS + TMAX*TMAX
-    for(t=0, t<TMAX+1, t++){
-        for(x=0, x<TMAX, x++){
-            Pi_UN[x,t]=0;
-        }
-        for(i=0; i<NWALKERS; i++){
-            Pi_UN[X[i,t],t]++
-        }
-    }
-
-    Pi = Pi_UN/NWALKERS
-    doubleArrToFile(Pi "walker_Pi.data")
-
-}
-
-//////////////////////////
-
 # define NHIST 1000
 void forhistograms(){
     double arr[NHIST];
@@ -112,7 +51,66 @@ void forhistograms(){
     doubleArrToFile("gaussian.data");
 }
 
+#define NWALKERS 1000
+#define TMAX 100
+#define IDX(r,c) r*(TMAX+1)+c
+// IDX macro allows us to mimik X[nrows, TMAX+1] multidim array allocation (only for ncols=TMAX+1)
+void random_walkers(){}
+    double choose;
+
+    // long X[NWALKERS,TMAX+1]
+    long * X = malloc(sizeof(long)*NWALKERS*(TMAX+1));
+
+    for(long i=0; i<NWALKERS; i++){
+        X[i,0] = 0; // all walkers start at origin
+        for(long t=1; t<TMAX+1; i++){
+            choose=rand1();
+            if(choose < 0.5){
+                X[IDX(i,t)] = X[IDX(i,t-1)]+1
+            }else
+                X[IDX(i,t)] = X[IDX(i,t-1)]-1
+        }
+    }
+
+    // long Pi_UN[TMAX,TMAX+1]
+    long * Pi_UN  = malloc(sizeof(long)*TMAX*(TMAX+1));
+
+    // Order TMAX*TMAX*NWALKERS (slower, not use)
+//    for(x=0, x<TMAX, x++){
+//    for(t=0, t<TMAX+1, t++){
+//        Pi_UN[x,t]=0;
+//        for(i=0; i<NWALKERS; i++){
+//            if(X[i,t] == x) Pi_UN[x,t]++;
+//        }
+//    }
+//    }
+
+    // Order TMAX*NWALKERS + TMAX*TMAX
+    for(t=0, t<TMAX+1, t++){
+        for(x=0, x<TMAX, x++){
+            Pi_UN[IDX(x,t)]=0;
+        }
+        for(i=0; i<NWALKERS; i++){
+            //Pi_UN[X[i,t],t]++
+            Pi_UN[IDX(X[IDX(i,t)],t)]++
+        }
+    }
+
+    // double Pi[TMAX,TMAX+1]
+    double * Pi  = malloc(sizeof(double)*TMAX*(TMAX+1));
+
+    for(t=0, t<TMAX+1, t++){
+        for(x=0, x<TMAX, x++){
+            Pi[IDX(x,t)] = (double)Pi_UN[IDX(x,t)]/NWALKERS
+        }
+    }
+    doubleArrToFile(Pi "walker_Pi.data")
+
+}
+
+
 int main(){
     forhistograms();
+    random_walkers();
     return 0;
 }
