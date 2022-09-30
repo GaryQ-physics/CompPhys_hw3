@@ -43,32 +43,35 @@ void forhistograms(){
     for(long i=0; i<NHIST; i++){
         arr[i] = sample_semicirc(1.);
     }
-    doubleArrToFile(arr, NHIST, "semicirc.data");
+    doubleArrToFile(arr, NHIST, "data/semicirc.data");
 
     for(long i=0; i<NHIST; i++){
         arr[i] = sample_gaussian(1.);
     }
-    doubleArrToFile(arr, NHIST, "gaussian.data");
+    doubleArrToFile(arr, NHIST, "data/gaussian.data");
 }
 
-#define NWALKERS 1000
-#define TMAX 100
+#define NWALKERS 100
+#define TMAX 10
 #define IDX(r,c) r*(TMAX+1)+c
 // IDX macro allows us to mimik X[nrows, TMAX+1] multidim array allocation (only for ncols=TMAX+1)
 void random_walkers(){
     double choose;
+    long dummy;
 
     // long X[NWALKERS,TMAX+1]
     long * X = malloc(sizeof(long)*NWALKERS*(TMAX+1));
 
     for(long i=0; i<NWALKERS; i++){
         X[IDX(i,0)] = 0; // all walkers start at origin
-        for(long t=1; t<TMAX+1; i++){
+        for(long t=1; t<TMAX+1; t++){
             choose=MYrand1();
+            dummy = t-1;
+            // printf("%f ; %ld ; %ld ; %ld\n", choose, i, t, dummy);
             if(choose < 0.5){
-                X[IDX(i,t)] = X[IDX(i,t-1)]+1;
+                X[IDX(i,t)] = X[IDX(i,dummy)]+1;
             }else
-                X[IDX(i,t)] = X[IDX(i,t-1)]-1;
+                X[IDX(i,t)] = X[IDX(i,dummy)]-1;
         }
     }
 
@@ -104,7 +107,7 @@ void random_walkers(){
             Pi[IDX(x,t)] = (double)Pi_UN[IDX(x,t)]/NWALKERS;
         }
     }
-    doubleArrToFile(Pi, TMAX*(TMAX+1), "walker_Pi.data");
+    doubleArrToFile(Pi, TMAX*(TMAX+1), "data/walker_Pi.data");
 }
 
 
