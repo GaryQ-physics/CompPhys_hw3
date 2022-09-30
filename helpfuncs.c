@@ -1,12 +1,12 @@
 #include <stdio.h>
-// #include <stdlib.h>
+#include <stdlib.h>
 #include <math.h>
 #include <sys/random.h>
 
 
 #define PI 3.14159265358979
 
-double rand1(){
+double MYrand1(){
     int r;
     unsigned int max=4294967295;
     unsigned int tmp;
@@ -17,9 +17,9 @@ double rand1(){
     return (double)tmp/max;
 }
 
-double rand(double a, double b){
+double MYrand(double a, double b){
     // b > a
-    return (b-a)*rand1() + a;
+    return (b-a)*MYrand1() + a;
 }
 
 void doubleArrToFile(double* arr, long arrlen, char* filename){
