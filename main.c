@@ -33,7 +33,20 @@ double sample_semicirc(double a){
 
 double sample_gaussian(double sigma){
     // box muller method
-    return 0.;
+    double x,y,sign,R2;
+    while(1){
+        x = MYrand1();
+        y = MYrand1();
+        sign = MYrand1();
+        R2 = x*x + y*y;
+        if(R2<=1.){
+            if(sign>0.5){
+                return sqrt(-2.*log(R2)/R2)*x;
+            }else{
+                return -sqrt(-2.*log(R2)/R2)*x;
+            }
+        }
+    }
 }
 
 # define NHIST 1000
