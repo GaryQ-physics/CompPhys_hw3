@@ -49,7 +49,7 @@ double sample_gaussian(double sigma){
     }
 }
 
-# define NHIST 10000
+# define NHIST 1000000
 void forhistograms(){
     double arr[NHIST];
 
@@ -64,7 +64,7 @@ void forhistograms(){
     doubleArrToFile(arr, NHIST, "data/gaussian.data");
 }
 
-#define NWALKERS 10000
+#define NWALKERS 1000000
 #define TMAX 100
 #define IDX(r,c) r*(TMAX+1)+c
 // IDX macro allows us to mimik X[nrows, TMAX+1] multidim array allocation (only for ncols=TMAX+1)
@@ -91,7 +91,7 @@ void random_walkers(){
     // long Pi_UN[2*TMAX+1,TMAX+1]
     long * Pi_UN = malloc(sizeof(long)*(2*TMAX+1)*(TMAX+1));
 
-    long x;
+    long xx;
     for(long t=0; t<TMAX+1; t++){
         for(long x=0; x<2*TMAX+1; x++){
             Pi_UN[IDX(x,t)]=0;
@@ -99,8 +99,8 @@ void random_walkers(){
         for(long i=0; i<NWALKERS; i++){
             //printf("t=%ld ; i=%ld ; [i,t]=%ld\n", t, i, IDX(i,t));
             //printf("t=%ld ; i=%ld ; [i,t]=%ld\n", t, i, IDX(i,t));
-            x = X[IDX(i,t)] + TMAX;
-            Pi_UN[IDX(x,t)]++;
+            xx = X[IDX(i,t)] + TMAX;
+            Pi_UN[IDX(xx,t)]++;
         }
     }
 
